@@ -24,7 +24,7 @@ import java.sql.ResultSet;
 
 import org.sqlite.JDBC;
 
-// TODO: Put resources and db into "Resources" folder, Sort for unchecked tasks first, Make tasks editable by using selectionListners and making functions for Task object that change its properties then refreshTable(), Colour code for importance score, Removing automatic focus, Overdue, Add My Work Planner Title in Box
+// TODO: Save current sorting order to DB, Put resources and DB into "Resources" folder, Make tasks editable by using selectionListners and making functions for Task object that change its properties then refreshTable(), Colour code for importance score, Removing automatic focus, Overdue, Add My Work Planner Title in Box
 
 
 public class taskManager extends JFrame {
@@ -208,8 +208,7 @@ public class taskManager extends JFrame {
             JPanel controlPanel = new JPanel();
             controlPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
-            sortingComboBox = new JComboBox<>(
-                    new String[] { "Sort by Title", "Sort by Subject", "Sort by Due Date", "Sort by Importance" });
+            sortingComboBox = new JComboBox<>(new String[] { "Sort by Title", "Sort by Subject", "Sort by Due Date", "Sort by Importance", "Sort by Unchecked", "Sort by Checked"});
 
             sortingComboBox.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -425,14 +424,20 @@ public class taskManager extends JFrame {
 
         switch (selectedIndex) {
             case 0: // Sort by Title
-                comparator = (t1, t2) -> {
+                comparator = (t1, t2) -> // Special comparator function defined to ignore capitalisation
+                {
                     String title1 = t1.getTitle().toLowerCase();
                     String title2 = t2.getTitle().toLowerCase();
                     return title1.compareTo(title2);
                 };
                 break;
             case 1: // Sort by Subject
-                comparator = Comparator.comparing(Task::getSubject);
+            	comparator = (t1, t2) -> 
+                {
+                    String subject1 = t1.getSubject().toLowerCase();
+                    String subject2 = t2.getSubject().toLowerCase();
+                    return subject1.compareTo(subject2);
+                };
                 break;
             case 2: // Sort by Due Date
                 comparator = (t1, t2) -> {
@@ -449,6 +454,13 @@ public class taskManager extends JFrame {
             case 3: // Sort by Importance (higher importance scores first)
                 comparator = (t1, t2) -> Integer.compare(t2.getImportance(), t1.getImportance());
                 break;
+            case 4: // Sort by Unchecked
+            	comparator = (t1, t2) -> Boolean.compare(t1.isChecked(), t2.isChecked());
+                break;
+            case 5: // Sort by Checked
+            	comparator = (t1, t2) -> Boolean.compare(t2.isChecked(), t1.isChecked());
+                break;
+           
         }
 
         if (comparator != null) {
