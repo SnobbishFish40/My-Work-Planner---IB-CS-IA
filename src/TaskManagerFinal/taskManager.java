@@ -24,7 +24,7 @@ import java.sql.ResultSet;
 
 import org.sqlite.JDBC;
 
-// TODO: Save current sorting order to DB, Put resources and DB into "Resources" folder, Make tasks editable by using selectionListners and making functions for Task object that change its properties then refreshTable(), Colour code for importance score, Removing automatic focus, Overdue, Add My Work Planner Title in Box
+// TODO: Make sure there is no redundant code in DB methods, Put resources and DB into "Resources" folder, Make tasks editable by using selectionListners and making functions for Task object that change its properties then refreshTable(), Colour code for importance score, Removing automatic focus, Overdue, Add My Work Planner Title in Box
 
 
 public class taskManager extends JFrame {
@@ -67,7 +67,7 @@ public class taskManager extends JFrame {
                 connection = DriverManager.getConnection(url);
                 System.out.println("Connection to SQLite database established!");
 
-                // Close the connection (you may want to close it at a later point)
+                // Close the connection (may want to close it at a later point)
                 // connection.close();
             }
             catch (ClassNotFoundException | SQLException e) {
@@ -502,7 +502,8 @@ public class taskManager extends JFrame {
                         + "title TEXT,"
                         + "subject TEXT,"
                         + "dueDate TEXT,"
-                        + "importance INTEGER"
+                        + "importance INTEGER,"
+                        + "sortingMethod INTEGER"
                         + ")";
                 
                 statement = connection.prepareStatement(createTableQuery);
@@ -511,7 +512,7 @@ public class taskManager extends JFrame {
 
 
             // Query to select all tasks from the database
-            String query = "SELECT checked, title, subject, dueDate, importance FROM tasksTable";
+            String query = "SELECT checked, title, subject, dueDate, importance, sortingMethod FROM tasksTable";
             statement = connection.prepareStatement(query);
             resultSet = statement.executeQuery();
 
@@ -522,6 +523,7 @@ public class taskManager extends JFrame {
                 String subject = resultSet.getString("subject");
                 String dueDate = resultSet.getString("dueDate");
                 int importance = resultSet.getInt("importance");
+                int sortingMethod = resultSet.getInt("sortingMethod");
 
                 // Create Task object
                 Task task = new Task(title, subject, dueDate, importance);
@@ -529,6 +531,9 @@ public class taskManager extends JFrame {
 
                 // Add the task to the list
                 tasks.add(task);
+                // Set sorting method
+                sortingComboBox.setSelectedIndex(sortingMethod);
+                
                 refreshTable();
             }
         } catch (SQLException e) {
@@ -544,6 +549,7 @@ public class taskManager extends JFrame {
                 System.out.println("Failed to close database resources: " + e.getMessage());
             }
         }
+        
     }
     
     private void saveTasksToDatabase() {
@@ -561,7 +567,7 @@ public class taskManager extends JFrame {
             statement.executeUpdate();
 
             // Insert the current tasks into the database
-            String insertQuery = "INSERT INTO tasksTable (checked, title, subject, dueDate, importance) VALUES (?, ?, ?, ?, ?)";
+            String insertQuery = "INSERT INTO tasksTable (checked, title, subject, dueDate, importance, sortingMethod) VALUES (?, ?, ?, ?, ?, ?)";
             statement = connection.prepareStatement(insertQuery);
 
             for (Task task : tasks) {
@@ -570,6 +576,7 @@ public class taskManager extends JFrame {
                 statement.setString(3, task.getSubject());
                 statement.setString(4, task.getDueDate());
                 statement.setInt(5, task.getImportance());
+                statement.setInt(6, sortingComboBox.getSelectedIndex());
                 statement.executeUpdate();
             }
         } catch (SQLException ex) {
