@@ -25,7 +25,7 @@ import java.sql.ResultSet;
 import org.sqlite.JDBC;
 
 // TODO: Make sure there is no redundant code in DB methods, Put resources and DB into "Resources" folder, Make tasks editable by using selectionListners and making functions for Task object that change its properties then refreshTable(), Colour code for importance score, Removing automatic focus, Overdue, Add My Work Planner Title in Box
-
+// DEBUG: If sorted by unchecked immediately after unchecking something, it rechecks
 
 public class taskManager extends JFrame {
 
