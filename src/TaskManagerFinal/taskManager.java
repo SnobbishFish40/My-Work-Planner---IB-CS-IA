@@ -239,6 +239,7 @@ public class taskManager extends JFrame {
             });
 
             controlPanel.add(sortingComboBox);
+            controlPanel.add(new JLabel("                                                     ")); // Shifts sortingComboBox leftwards
             controlPanel.add(addButton);
             controlPanel.add(deleteButton);
             controlPanel.add(exitButton);
@@ -275,25 +276,23 @@ public class taskManager extends JFrame {
                 }
             });
 
-            // selection listener that maintains checkmark status when list is modified
+            // Selection listener that updates task details when edited
             table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
                 public void valueChanged(ListSelectionEvent e) {
-                    if (!e.getValueIsAdjusting()) {
-                        int selectedRow = table.getSelectedRow();
-                        if (selectedRow >= 0) {
-                            boolean checked = (boolean) table.getValueAt(selectedRow, 0);
-                            String title = (String) table.getValueAt(selectedRow, 1);
-                            String subject = (String) table.getValueAt(selectedRow, 2);
-                            String dueDate = (String) table.getValueAt(selectedRow, 3);
-                            int importance = (int) table.getValueAt(selectedRow,  4);
-                            Task taskEditing = tasks.get(selectedRow);
-                            taskEditing.setChecked(checked);
-//                            taskEditing.setTitle(title); // These features make the tasks unselectable because refreshTable() deselects tasks
-//                            taskEditing.setSubject(subject);
-//                            taskEditing.setDueDate(dueDate);
-//                            taskEditing.setImportance(importance);
-//                            
-                        }
+                    int selectedRow = table.getSelectedRow();
+                    if (selectedRow >= 0) {
+                        boolean checked = (boolean) table.getValueAt(selectedRow, 0);
+                        String title = (String) table.getValueAt(selectedRow, 1);
+                        String subject = (String) table.getValueAt(selectedRow, 2);
+                        String dueDate = (String) table.getValueAt(selectedRow, 3);
+                        int importance = (int) table.getValueAt(selectedRow,  4);
+                        Task taskEditing = tasks.get(selectedRow);
+                        taskEditing.setChecked(checked);
+                        
+                        taskEditing.setTitle(title); // These features are broken. This is not because of refreshTable but because it does not recognise the task being edited as selected so does not grab the new data
+                        taskEditing.setSubject(subject);
+                        taskEditing.setDueDate(dueDate);
+                        taskEditing.setImportance(importance);
                     }
                 }
             });
@@ -621,7 +620,6 @@ public class taskManager extends JFrame {
         
         public void setTitle(String title) {
             this.title = title;
-            refreshTable();
         }
 
         public String getSubject() {
